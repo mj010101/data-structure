@@ -5,8 +5,8 @@ import sys
 # --------------------------------------------------------------------
 
 # Preconditions:
-#   - n smallest disks are the top disks on pole source.
-#   - destination is the pole after source in clockwise order
+#   - n smallest disks are the top disks on pole source. // n
+#   - destination is the pole after source in clockwise order // destination = source의 바로 오른쪽에 있는 pole
 # Postcondition:
 #   - n smallest disks are the top disks on pole destination.
 
@@ -15,9 +15,14 @@ def hanoi_cw(n, source, destination, spare):
     print("Move disk 1 from %s to %s" % (source, destination))
   else:
     # The following part is wrong (not using clockwise movements)!
-    hanoi_cw(n-1, source, spare, destination)
-    print("Move disk %d from %s to %s" % (n, source, destination))
-    hanoi_cw(n-1, spare, destination, source)
+    hanoi_cw(n-1, source, destination, spare)
+
+    print("Move disk %d from %s to %s - test1" % (n, source, destination))
+
+    # hanoi_cw(n-1, destination, spare, source)
+    
+    
+    
 
 # --------------------------------------------------------------------
 
