@@ -17,9 +17,13 @@ def hanoi_cw(n, source, destination, spare):
     # The following part is wrong (not using clockwise movements)!
     hanoi_cw(n-1, source, destination, spare)
 
+    hanoi_cw(n-1, destination, spare, source)
+
     print("Move disk %d from %s to %s - test1" % (n, source, destination))
 
-    # hanoi_cw(n-1, destination, spare, source)
+    hanoi_cw(n-1, spare, source, destination)
+
+    hanoi_cw(n-1, source, destination, spare)
     
     
     

@@ -25,7 +25,7 @@ def parse_item(tok):
   if t.isSymbol("|"):  # 절대값 연산자 처리
     expr = parse_expression(tok)
     if not tok[0].isSymbol("|"):
-        raise InputError("Expected '|' to close absolute value", tok[0])
+        raise InputError("Expected operator or '|'", tok[0])
     tok.pop(0)
     return abs(expr)
   if not t.isSymbol("("):
