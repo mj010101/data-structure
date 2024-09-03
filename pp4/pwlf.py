@@ -15,7 +15,8 @@ class PieceWiseLinear(object):
 
     self.slope = (y1 - y0) / (x1 - x0)
     self.intercept = y0 - self.slope * x0
-    # raise NotImplementedError
+    return
+    raise NotImplementedError
 
   def domain(self):
     """Return domain interval as a pair."""
@@ -25,7 +26,7 @@ class PieceWiseLinear(object):
                           
   def __str__(self):
     ## error case.
-    return "(%g, %g)" % (self.x0, self.y0)
+    return "(%g, %g)" % (self.x0, self.y0) + ".." + "(%g, %g)" % (self.x1, self.y1)
     raise NotImplementedError
 
   def __call__(self, x):
@@ -51,6 +52,7 @@ class PieceWiseLinear(object):
   def __rmul__(self, lhs):
     """Multiplication of a number lhs with a piecewise linear function.
 Returns a new function, this function remains unchanged."""
+    return PieceWiseLinear(self.x0, lhs * self.y0, self.x1, lhs * self.y1)
     raise NotImplementedError
 
   def add_pwlf(self, rhs, factor):
@@ -64,12 +66,16 @@ Returns a new function, this function remains unchanged."""
     x1 = min(x1a, x1b)
     if x0 >= x1:
       raise ValueError("domains do not overlap")
+    y0 = self(x0) + factor * rhs(x0)
+    y1 = self(x1) + factor * rhs(x1)
+    return PieceWiseLinear(x0, y0, x1, y1)
     raise NotImplementedError
 
   def add_number(self, rhs, factor):
     """Returns the sum of this function and factor * rhs,
 where rhs is a number.
 This function remains unchanged."""
+    return PieceWiseLinear(self.x0, self.y0 + factor * rhs, self.x1, self.y1 + factor * rhs)
     raise NotImplementedError
 
   def __add__(self, rhs):
