@@ -9,24 +9,32 @@ class PieceWiseLinear(object):
     if x1 <= x0:
       raise ValueError("x1 must be larger than x0")
     self.x0 = x0
-    self.x1 = x1
     self.y0 = y0
+    self.x1 = x1
     self.y1 = y1
 
-    self.slope = (y1 - y0) / (x1 - x0)
-    self.intercept = y0 - self.slope * x0
+    self.segments = [(x0, y0, x1, y1)]
     return
     raise NotImplementedError
 
   def domain(self):
     """Return domain interval as a pair."""
-    
-    return (self.x0, self.x1)
+    return (self.segments[0][0], self.segments[-1][2])
     raise NotImplementedError
                           
   def __str__(self):
-    ## error case.
-    return "(%g, %g)" % (self.x0, self.y0) + ".." + "(%g, %g)" % (self.x1, self.y1)
+    # WARNING: Would incur error for .join case.
+    # 방안 idea: initial point, intersecting point, final point를 리스트에 담는다.
+    #           이후, 중복되지 않게 (%g, %g)로 출력한다. 
+    segment_strs = []
+    for i, (x0, y0, x1, y1) in enumerate(self.segments):
+        # Append the starting point only once
+        if i==0:
+            segment_strs.append("(%g, %g)" % (x0, y0))
+        # Append the ending point of the current segment
+        segment_strs.append("(%g, %g)" % (x1, y1))
+    result = segment_strs
+    return "..".join(result)
     raise NotImplementedError
 
   def __call__(self, x):
@@ -34,25 +42,47 @@ class PieceWiseLinear(object):
     d = self.domain()
     if x < d[0] or x > d[1]:
       raise ValueError("argument is not in domain")
-    return self.slope * x + self.intercept
+    # f.segment = [(1, -1, 3, 1), (3, 1, 7, -5)]
+    #           = [(x_1, y_1, x_2, y_2), (x_2, y_2, x_3, y_3)]
+    global value
+    for (x0, y0, x1, y1) in self.segments:
+        if x0 <= x <= x1:  # Check if x is within this segment
+            slope = (y1 - y0) / (x1 - x0)
+            value = slope * (x - x0) + y0
+    return value
     raise NotImplementedError
 
   def join(self, rhs):
     """Join two piecewise linear functions."""
-    d1= self.domain()
-    d2 = rhs.domain()
-    if d1[1] != d2[0]:
-      raise ValueError("domains are not contiguous")
-    if abs(self(d1[1]) - rhs(d2[0])) > 1e-13:
-      raise ValueError("discontinuity at connection point")
+    # d1: (self.x0, self.x1) | d2: (rhs.x0, rhs.x1)
+    # Condition 1) self.x1 == rhs.x0
+    # Condition 2) self.y1 == rhs.y1
+    # 짜야 하는 코드
+    # i) self.x0 =< x =< self.x1 => return self(x)
+    # ii) self.x1 =< x =< rhs.x1 => return rhs(x)
+
+    new_function = PieceWiseLinear(self.segments[0][0], self.segments[0][1], self.segments[0][2], self.segments[0][3])
     
-    return PieceWiseLinear(self.x0, self.y0, rhs.x1, rhs.y1)
+    # Add all segments from rhs
+    for seg in rhs.segments:
+        new_function.segments.append(seg)
+    
+    return new_function
     raise NotImplementedError
 
   def __rmul__(self, lhs):
     """Multiplication of a number lhs with a piecewise linear function.
 Returns a new function, this function remains unchanged."""
-    return PieceWiseLinear(self.x0, lhs * self.y0, self.x1, lhs * self.y1)
+    new_segments = [
+        (x0, y0 * lhs, x1, y1 * lhs)
+        for (x0, y0, x1, y1) in self.segments
+    ]
+    
+    # Create a new PieceWiseLinear object
+    new_pwlf = PieceWiseLinear(self.x0, self.y0 * lhs, self.x1, self.y1 * lhs)
+    new_pwlf.segments = new_segments
+    return new_pwlf
+  
     raise NotImplementedError
 
   def add_pwlf(self, rhs, factor):
@@ -66,16 +96,38 @@ Returns a new function, this function remains unchanged."""
     x1 = min(x1a, x1b)
     if x0 >= x1:
       raise ValueError("domains do not overlap")
-    y0 = self(x0) + factor * rhs(x0)
-    y1 = self(x1) + factor * rhs(x1)
-    return PieceWiseLinear(x0, y0, x1, y1)
+    
+    new_segments = []
+    
+    for (x0a, y0a, x1a, y1a), (x0b, y0b, x1b, y1b) in zip(self.segments, rhs.segments):
+        if x0b >= x0a and x1b <= x1a:
+            new_segments.append((
+                x0b,
+                y0a + factor * y0b,
+                x1b,
+                y1a + factor * y1b
+            ))
+    
+    new_pwlf = PieceWiseLinear(new_segments[0][0], new_segments[0][1], new_segments[-1][2], new_segments[-1][3])
+    new_pwlf.segments = new_segments
+    return new_pwlf
+    
     raise NotImplementedError
 
   def add_number(self, rhs, factor):
     """Returns the sum of this function and factor * rhs,
 where rhs is a number.
 This function remains unchanged."""
-    return PieceWiseLinear(self.x0, self.y0 + factor * rhs, self.x1, self.y1 + factor * rhs)
+    new_segments = [
+        (x0, y0 + factor * rhs, x1, y1 + factor * rhs)
+        for (x0, y0, x1, y1) in self.segments
+    ]
+    
+    # Create a new PieceWiseLinear object
+    new_pwlf = PieceWiseLinear(self.x0, self.y0 + factor * rhs, self.x1, self.y1 + factor * rhs)
+    new_pwlf.segments = new_segments
+    return new_pwlf
+
     raise NotImplementedError
 
   def __add__(self, rhs):
