@@ -30,9 +30,9 @@ class PieceWiseLinear(object):
     for i, (x0, y0, x1, y1) in enumerate(self.segments):
         # Append the starting point only once
         if i==0:
-            segment_strs.append("(%g, %g)" % (x0, y0))
+            segment_strs.append("(%g,%g)" % (x0,y0))
         # Append the ending point of the current segment
-        segment_strs.append("(%g, %g)" % (x1, y1))
+        segment_strs.append("(%g,%g)" % (x1,y1))
     result = segment_strs
     return "..".join(result)
     raise NotImplementedError
@@ -43,7 +43,7 @@ class PieceWiseLinear(object):
     if x < d[0] or x > d[1]:
       raise ValueError("argument is not in domain")
     # f.segment = [(1, -1, 3, 1), (3, 1, 7, -5)]
-    #           = [(x_1, y_1, x_2, y_2), (x_2, y_2, x_3, y_3)]
+   
     global value
     for (x0, y0, x1, y1) in self.segments:
         if x0 <= x <= x1:  # Check if x is within this segment
@@ -60,14 +60,19 @@ class PieceWiseLinear(object):
     # 짜야 하는 코드
     # i) self.x0 =< x =< self.x1 => return self(x)
     # ii) self.x1 =< x =< rhs.x1 => return rhs(x)
-
-    new_function = PieceWiseLinear(self.segments[0][0], self.segments[0][1], self.segments[0][2], self.segments[0][3])
     
-    # Add all segments from rhs
-    for seg in rhs.segments:
-        new_function.segments.append(seg)
+    d1= self.domain() #(1, 3)
+    d2 = rhs.domain() #(3, 7)
+    if d1[1] != d2[0]:
+      raise ValueError("domains are not contiguous")
+    if abs(self(d1[1]) - rhs(d2[0])) > 1e-13:
+      raise ValueError("discontinuity at connection point")
     
-    return new_function
+    new_segments = self.segments + rhs.segments
+    new_pwlf = PieceWiseLinear(new_segments[0][0], new_segments[0][1], new_segments[-1][2], new_segments[-1][3])
+    new_pwlf.segments = new_segments
+    
+    return new_pwlf
     raise NotImplementedError
 
   def __rmul__(self, lhs):
@@ -96,20 +101,45 @@ Returns a new function, this function remains unchanged."""
     x1 = min(x1a, x1b)
     if x0 >= x1:
       raise ValueError("domains do not overlap")
+
+    # Create a list of x-values (breakpoints) from both functions
+    x_values = set()
+    for (x0_self, _, x1_self, _) in self.segments:
+        if x0 <= x1_self and x1 >= x0_self:
+            x_values.update([x0_self, x1_self])
+    for (x0_rhs, _, x1_rhs, _) in rhs.segments:
+        if x0 <= x1_rhs and x1 >= x0_rhs:
+            x_values.update([x0_rhs, x1_rhs])
+    
+    # Sort the x-values to determine the new breakpoints
+    x_values = sorted(x for x in x_values if x0 <= x <= x1)
     
     new_segments = []
     
-    for (x0a, y0a, x1a, y1a), (x0b, y0b, x1b, y1b) in zip(self.segments, rhs.segments):
-        if x0b >= x0a and x1b <= x1a:
-            new_segments.append((
-                x0b,
-                y0a + factor * y0b,
-                x1b,
-                y1a + factor * y1b
-            ))
+    # Iterate over the new breakpoints and calculate new y-values
+    for i in range(len(x_values) - 1):
+        x_start = x_values[i]
+        x_end = x_values[i + 1]
+        
+        # Calculate y-values for self
+        y_start_self = self.__call__(x_start)
+        y_end_self = self.__call__(x_end)
+        
+        # Calculate y-values for rhs
+        y_start_rhs = rhs.__call__(x_start)
+        y_end_rhs = rhs.__call__(x_end)
+        
+        # Add the values (self + factor * rhs)
+        y_start = y_start_self + factor * y_start_rhs
+        y_end = y_end_self + factor * y_end_rhs
+        
+        # Add the new segment to the list
+        new_segments.append((x_start, y_start, x_end, y_end))
     
+    # Create a new PieceWiseLinear function with the new segments
     new_pwlf = PieceWiseLinear(new_segments[0][0], new_segments[0][1], new_segments[-1][2], new_segments[-1][3])
     new_pwlf.segments = new_segments
+    
     return new_pwlf
     
     raise NotImplementedError
