@@ -53,19 +53,19 @@ class set():
     return newSet
     
   def intersection(self, t):
-    intersection_list = []
+    intersection_set = set()
     for el in self._data:
       if el in t:
-        intersection_list.append(el)
-    return intersection_list
+        intersection_set.add(el)
+    return intersection_set
     raise NotImplementedError
 
   def difference(self, t):
-    difference_list = []
+    difference_set = set()
     for el in self._data:
       if el not in t:
-        difference_list.append(el)
-    return difference_list
+        difference_set.add(el)
+    return difference_set
     raise NotImplementedError
 
   def __iter__(self):
