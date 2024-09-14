@@ -203,25 +203,25 @@ q is the previous node on the same row, or None."""
       raise ValueError("Dimensions of matrices do not match")
     result = Matrix(self.nrows, self.ncols)
 
-    # 각 row의 노드를 확인
-    for i in range(self.nrows):
-      p_self = self._prow[i]
-      p_rhs = rhs._prow[i]
+    # # 각 row의 노드를 확인
+    # for i in range(self.nrows):
+    #   p_self = self._prow[i]
+    #   p_rhs = rhs._prow[i]
 
-      while p_self or p_rhs:
-        # case 1: self에만 값이 있을 때
-        if p_self and (not p_rhs or p_self.col < p_rhs.col):
-          result [i, p_self.col] = p_self.el
-          p_self = p_self.right
-        # case 2: rhs에만 값이 있을 때
-        elif p_rhs and (not p_self or p_rhs.col < p_self.col):
-          result[i, p_rhs.col] = p_rhs.el
-          p_rhs = p_rhs.right
-        # case 3: 두 matrix에 모두 값이 존재할 때
-        else:
-          result[i, p_self.col] = p_self.el + p_rhs.el
-          p_self = p_self.right
-          p_rhs = p_rhs.right
+    #   while p_self or p_rhs:
+    #     # case 1: self에만 값이 있을 때
+    #     if p_self and (not p_rhs or p_self.col < p_rhs.col):
+    #       result [i, p_self.col] = p_self.el
+    #       p_self = p_self.right
+    #     # case 2: rhs에만 값이 있을 때
+    #     elif p_rhs and (not p_self or p_rhs.col < p_self.col):
+    #       result[i, p_rhs.col] = p_rhs.el
+    #       p_rhs = p_rhs.right
+    #     # case 3: 두 matrix에 모두 값이 존재할 때
+    #     else:
+    #       result[i, p_self.col] = p_self.el + p_rhs.el
+    #       p_self = p_self.right
+    #       p_rhs = p_rhs.right
       
     return result
     raise NotImplementedError
