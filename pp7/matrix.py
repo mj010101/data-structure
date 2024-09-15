@@ -41,35 +41,32 @@ q is the previous node on the same row, or None."""
     # 1. el이 0이면 삽입하지 않음. 해당 basecase가 없으면 무분별하게 node를 생성하여 에러가 뜸.
     if el == 0:
       return
-    # 2. q가 None이면, n을 가장 처음에 삽입. q가 존재한다면, q 직후에 삽입.
+    # 2. Row 방향으로의 삽입.
     if q is None:
+      # q가 None이면, n을 가장 처음에 삽입. self._prow[row] => 행의 첫 노드.
       n.right = self._prow[row]
       self._prow[row] = n
     else:
+      # q가 존재한다면, q 직후에 삽입.
       n.right = q.right
       q.right = n
     
-    #2. Column에서도 row와 마찬가지로 삽입.
-    # p = self._pcol[col]
-    # if p is None or p.row > row: # 첫번째 열이거나 삽입할 위치가 첫 노드보다 앞일경우.
-    #   n.down = self._pcol[col]
-    #   self._pcol[col] = n
-    # else:
-    #   n.down = p.down
-    #   p.down = n
+    # 3. Column에서도 row와 마찬가지로 삽입.
+    # p = self._pcol[col] => 열의 첫 노드.
     p = self._pcol[col]
     prev_col_node = None
 
-    while p is not None and p.row < row:
+    while p is not None and p.row < row: 
+        # 삽입할 위치가 첫 노드보다 앞일경우.
         prev_col_node = p
         p = p.down
 
     if prev_col_node is None:
-        # 열의 첫 번째 노드로 삽입
+        # prev_col_node = None -> n을 열의 첫 번째 노드로 삽입해야함을 의미.
         n.down = self._pcol[col]
         self._pcol[col] = n
     else:
-        # 열의 중간 또는 끝에 삽입
+        # prev_col_node 가 존재한다면, n을 prev_col_node 아래에 삽입.
         n.down = prev_col_node.down
         prev_col_node.down = n
     
@@ -80,19 +77,27 @@ q is the previous node on the same row, or None."""
     "Remove the node p. q is the previous node on the same row, or None."
     # 1. Row 방향에서의 노드 삭제
     if q is None:
+      # q가 None이라면 p를 삭제하기 위해 row의 첫 노드를 p.right으로 설정.
       self._prow[p.row] = p.right
     else:
+      # q가 존재한다면, q.right - p [deleted] - p.right => q.right - p.right으로 설정.
       q.right = p.right
+
     # 2. Column 방향에서의 노드 삭제
-    prev_col_node = None
+    # _insertnode와 마찬가지로, prev_col_node 및 current_col_node를 설정.
     current_col_node = self._pcol[p.col]
+    prev_col_node = None
     
     while current_col_node is not None and current_col_node != p:
+    # current_col_node가 p와 같을때까지 열을 따라 아래로 이동.
+    # prev_col_node는 current_col_node가 아닌동안, 그 이전 노드를 계속 업데이트 함.
       prev_col_node = current_col_node
       current_col_node = current_col_node.down
     if prev_col_node is None:
+      # prev_cold_node = None -> p가 해당 열의 첫번째 노드일 때.
       self._pcol[p.col] = p.down
     else:
+      # prev_col_node가 존재한다면, prev_col_node.donw - p[deleted] - p.down으로 설정.
       prev_col_node.down = p.down
 
     return
@@ -189,9 +194,13 @@ q is the previous node on the same row, or None."""
   def transposed(self):
     result = Matrix(self.ncols, self.nrows)
 
+    # self.nrows = row의 수. 
+    # self._prow[i] = i 번째 행의 첫번째 노드.
     for i in range(self.nrows):
       node = self._prow[i]
       while node:
+        # 해당 행에 노드가 없을 때까지 반복.
+        # p, q => (row, col)에 있는 노드를 (col, row) 위치로 옮기기 위함. 
         p, q = result._findnode(node.col, node.row)
         result._insertnode(node.col, node.row, q, node.el) #next node인 q를 명시해줘야 값을 누락하지 않고 제대로 transpose 됨.
         node = node.right
@@ -208,6 +217,7 @@ q is the previous node on the same row, or None."""
       p_self = self._prow[i]
       p_rhs = rhs._prow[i]
 
+      # 해당 self와 rhs Matrice에 노드가 없을 때까지 반복.
       while p_self or p_rhs:
         # case 1: self에만 값이 있을 때
         if p_self and (not p_rhs or p_self.col < p_rhs.col):
