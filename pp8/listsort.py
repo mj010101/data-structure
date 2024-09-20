@@ -60,9 +60,11 @@ class DoublyLinkedList:
     n.next = p
 
   def prepend(self, el):
+    # 가장 앞에 삽입
     self.insert_after(self._front, el)
   
   def append(self, el):
+    # 가장 뒤에 삽입
     self.insert_after(self._rear.prev, el)
 
   def remove(self, n):
@@ -73,20 +75,52 @@ class DoublyLinkedList:
 
   def median(self):
     "Returns the node in the middle of the list."
+    front = self._front.next
+    rear = self._rear.prev
+
+    while front != rear and front.prev != rear:
+      front = front.next
+      rear = rear.prev
+    return front
     raise NotImplementedError
 
   def split(self, n):
     "Removes all nodes after n from this list and returns them in a new DoublyLinkedList object."
+    new_list = DoublyLinkedList()
+
+    # n 다음의 노드가 새로운 리스트의 첫 노드.
+    new_list._front.next = n.next
+    n.next.prev = new_list._front
+    new_list._rear.prev = self._rear.prev
+    self.rear.prev.next = new_list._rear
+
+    n.next = self._rear
+    self._rear.prev = n
+
+    return new_list
     raise NotImplementedError
 
   def steal(self, other):
     "Moves first node in other list to the end of this list."
+
+    stolen_node = other.first()
+    other.remove(stolen_node)
+
+    self.insert_after(self._rear.prev, stolen_node.el)
+    return
     raise NotImplementedError
 
   def merge(self, other):
     "Merges elements from sorted other list into this sorted list."
     left = self.split(self._front)  # move all elements to a new list
     # now merge left and other
+    while not other.is_empty():
+      if self.is_empty() or other.first().el < self.first().el:
+        self.steal(other)
+      else:
+        current = self.first()
+        self.remove(current)
+        self.insert_after(self._rear.prev, current.el)
     raise NotImplementedError
 
 # --------------------------------------------------------------------

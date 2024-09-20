@@ -33,7 +33,7 @@ def quick_select(a, k):
   # k가 small 리스트의 길이보다 작으면 small 리스트에서 탐색 (ex. k = 5, len(small) = 6)
   if k < len(small):
       return quick_select(small, k)
-  # k가 small + equal의 범위 내에 있으면, equal 리스트의 uniform한 값인 'pivot'을 리턴함.
+  # k가 equal의 범위 (i.e. len(small + equal)) 내에 있으면, equal 리스트의 uniform한 값인 'pivot'을 리턴함.
   elif k < len(small) + len(equal):
       return pivot
   # k가 large 범위에 있으면 large 리스트에서 탐색
