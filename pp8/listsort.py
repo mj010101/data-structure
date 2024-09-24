@@ -123,15 +123,35 @@ class DoublyLinkedList:
   def merge(self, other):
     "Merges elements from sorted other list into this sorted list."
     left = self.split(self._front)  # move all elements to a new list
-    # now merge left and other
-    while not other.is_empty():
-      if self.is_empty() or other.first().el < self.first().el:
-        self.steal(other)
+    # now merge left and other => into self! (Left에 빼놨다가, self로 다시 합치기.)
+    left_node = left._front.next
+    other_node = other._front.next
+
+    # left 리스트와 other 리스트가 비어있을 때까지 반복.
+    while left_node != left._rear or other_node != other._rear:
+      # Case 1: Left가 비어있는 경우 
+      # *(is_empty()를 활용하면 .el이 None 타입인 상황에서도 비교를 하기에 에러가 발생함.)
+      if left_node == left._rear:
+        self.append(other_node.el)
+        other_node = other_node.next 
+      # Case 2: Other가 비어있는 경우
+      elif other_node == other._rear:
+        self.append(left_node.el)
+        left_node = left_node.next
+      # Case 3: Left의 값이 더 작거나 같은 경우
+      elif left_node.el <= other_node.el:
+        self.append(left_node.el)
+        left_node = left_node.next
+      # Case 4: Other의 값이 더 작은 경우
       else:
-        current = self.first()
-        self.remove(current)
-        self.insert_after(self._rear.prev, current.el)
+        self.append(other_node.el)
+        other_node = other_node.next
     
+    # Other List를 비워줘야 함. [element를 기준으로 merge하기에, node가 남아있을 수 있음]
+    other._front.next = other._rear
+    other._rear.prev = other._front
+
+    return
     raise NotImplementedError
 
 # --------------------------------------------------------------------
