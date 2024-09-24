@@ -81,19 +81,24 @@ class DoublyLinkedList:
     while front != rear and front.prev != rear:
       front = front.next
       rear = rear.prev
-    return front
+    # front를 반환하면 left-half가 아니라 right-half에서의 값을 반환함.
+
+    return rear
     raise NotImplementedError
 
   def split(self, n):
     "Removes all nodes after n from this list and returns them in a new DoublyLinkedList object."
     new_list = DoublyLinkedList()
 
-    # n 다음의 노드가 새로운 리스트의 첫 노드.
+    # new_list의 첫 노드가 n 다음의 노드로 시작해야함.
     new_list._front.next = n.next
     n.next.prev = new_list._front
-    new_list._rear.prev = self._rear.prev
-    self.rear.prev.next = new_list._rear
 
+    # new_list의 마지막 노드는 self의 마지막 노드로 설정해야함.
+    new_list._rear.prev = self._rear.prev
+    self._rear.prev.next = new_list._rear
+
+    # 원래 리스트를 n까지 잘라야 함.
     n.next = self._rear
     self._rear.prev = n
 
@@ -106,7 +111,12 @@ class DoublyLinkedList:
     stolen_node = other.first()
     other.remove(stolen_node)
 
-    self.insert_after(self._rear.prev, stolen_node.el)
+    # stolen_node의 값이 아니라, node 자체를 self 리스트의 끝에 추가.
+    stolen_node.prev = self._rear.prev
+    stolen_node.next = self._rear
+    self._rear.prev.next = stolen_node
+    self._rear.prev = stolen_node
+    
     return
     raise NotImplementedError
 
@@ -121,6 +131,7 @@ class DoublyLinkedList:
         current = self.first()
         self.remove(current)
         self.insert_after(self._rear.prev, current.el)
+    
     raise NotImplementedError
 
 # --------------------------------------------------------------------
