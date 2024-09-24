@@ -10,7 +10,7 @@ def select(a, k):
 def quick_select(a, k):
   # 1. Base case와 Pivot을 설정한다.
   if len(a) <= 1:
-    return a
+    return a[0]
   pivot = a[len(a) // 2]
 
   # 2. 리스트를 small/equal/large 세부분으로 나눈다. 
@@ -36,6 +36,7 @@ def quick_select(a, k):
   # k가 equal의 범위 (i.e. len(small + equal)) 내에 있으면, equal 리스트의 uniform한 값인 'pivot'을 리턴함.
   elif k < len(small) + len(equal):
       return pivot
+      print (pivot)
   # k가 large 범위에 있으면 large 리스트에서 탐색
   # small과 equal에서 이미 a번째 b번째를 탐색했으니, large 리스트에서 k - (a+b) 번째를 구해야한다.
   # ex) a = [2, 4, 1, 8, 9, 5, 3], k = 5
