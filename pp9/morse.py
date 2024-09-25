@@ -11,6 +11,18 @@ class Morse():
     self.dash = dash
 
   def decode(self, morse):
+    if morse == "":
+      return self.symbol
+    elif morse[0] == '.':
+      if self.dot is None:
+        return None
+      return self.dot.decode(morse[1:])
+    elif morse[0] == '-':
+      if self.dash is None:
+        return None
+      return self.dash.decode(morse[1:])
+    
+    return
     raise NotImplementedError
 
 # The decoding tree
