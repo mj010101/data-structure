@@ -30,18 +30,85 @@ class _Node():
     return p
 
   def _find(self, key):
+    current = self
+    while current is not None:
+      if key == current.key:
+        return current
+      elif key < current.key:
+        current = current.left
+      else: 
+        current = current.right
+    return None
     raise NotImplementedError
 
   def _insert(self, key, value):
+    current = self
+    while True:
+      if key == current.key:
+        current.value = value
+        break
+      elif key < current.key:
+        if current.left is None:
+          current.left = _Node(key, value)
+          break
+        else:
+          current = current.left
+      else:
+        if current.right is None:
+          current.right = _Node(key, value)
+          break
+        else:
+          current = current.right
+    return
     raise NotImplementedError
 
   # Remove node with smallest key in the subtree rooted at this node
   # Returns the new root.
   def _remove_first(self):
+    parent = None
+    current = self
+
+    while current.left is not None:
+      parent = current
+      current = current.left
+    if parent is None:
+      return self.right
+    else:
+      parent.left = current.right
+      return self
     raise NotImplementedError
 
   # Returns the new root.
   def _remove(self, key):
+    parent = None
+    current = self
+    is_left_child = True
+
+    while current is not None and current.key != key:
+      parent = current
+      if key < current.key:
+        is_left_child = True
+        current = current.left
+      else:
+        is_left_child = False
+        current = current.right
+    
+    if current is None:
+      return self
+    if current.left is not None and current.right is not None:
+      successor = current.right._find_first()
+      current.key = successor.key
+      current.value = successor.value
+      current.right = current.right._remove_first()
+    else:
+      child = current.left if current.left else current.right
+      if parent is None:
+        return child
+      elif is_left_child:
+        parent.left = child
+      else:
+        parent.right = child
+    return self
     raise NotImplementedError
 
 # --------------------------------------------------------------------
