@@ -4,9 +4,9 @@
 
 # Select here which implementation you want to use:
 # Old one:
-import bst
+# import bst
 # New one
-#import nrbst as bst
+import nrbst as bst
 
 d = bst.dict()
 

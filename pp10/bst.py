@@ -52,6 +52,7 @@ class _Node():
   # Returns the new root.
   def _remove_first(self):
     if self.left is None:
+      # self.right = None 값이기 때문
       return self.right
     else:
       self.left = self.left._remove_first()
