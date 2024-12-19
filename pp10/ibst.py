@@ -92,14 +92,14 @@ class _Node():
     candidate = None  # 현재까지 찾은 upper neighbor 후보
 
     while current is not None:
-        if current.key > x:
-            candidate = current  # 현재 노드가 x보다 크면 upper neighbor 후보
-            current = current.left  # 왼쪽 서브트리에서 더 작은 upper neighbor가 있는지 확인
-        else:
-            current = current.right  # x보다 크지 않다면 오른쪽 서브트리로 이동
+      if current.key > x:
+          candidate = current  # 현재 노드가 x보다 크면 upper neighbor 후보
+          current = current.left  # 왼쪽 서브트리에서 더 작은 upper neighbor가 있는지 확인
+      else:
+          current = current.right  # x보다 크지 않다면 오른쪽 서브트리로 이동
 
     if candidate is None:
-        raise KeyError(x)  # upper neighbor가 없을 경우 예외 발생
+      raise KeyError(x)  # upper neighbor가 없을 경우 예외 발생
 
     return candidate.key
     raise NotImplementedError
@@ -107,19 +107,19 @@ class _Node():
   def _range(self, output, low, high):
     "Appends all elements of subtree in the range [low, high] to the output."
     if self is None:
-        return  # 노드가 없으면 재귀 종료
+      return  # 노드가 없으면 재귀 종료
 
     # 현재 노드가 범위의 하한보다 크면 왼쪽 서브트리를 탐색
     if self.left is not None and low < self.key:
-        self.left._range(output, low, high)
+      self.left._range(output, low, high)
 
     # 현재 노드가 범위 내에 있으면 출력 리스트에 추가
     if low <= self.key < high:
-        output.append(self.key)
+      output.append(self.key)
 
     # 현재 노드가 범위의 상한보다 작으면 오른쪽 서브트리를 탐색
     if self.right is not None and self.key < high:
-        self.right._range(output, low, high)
+      self.right._range(output, low, high)
     
     return
     raise NotImplementedError
@@ -131,18 +131,18 @@ that are <= x and > x, respectively."""
       # 현재 노드가 x보다 작거나 같은 경우, 왼쪽 서브트리는 그대로 유지하고
       # 오른쪽 서브트리를 분할하여 오른쪽에 해당하는 트리를 반환
       if self.right is None:
-          return _Node(self.key, self.left, None), None  # 오른쪽에 더 이상 트리가 없음
+        return _Node(self.key, self.left, None), None  # 오른쪽에 더 이상 트리가 없음
       else:
-          left_subtree, right_subtree = self.right._split(x)
-          return _Node(self.key, self.left, left_subtree), right_subtree
+        left_subtree, right_subtree = self.right._split(x)
+        return _Node(self.key, self.left, left_subtree), right_subtree
     else:
-        # 현재 노드가 x보다 큰 경우, 오른쪽 서브트리는 그대로 유지하고
-        # 왼쪽 서브트리를 분할하여 왼쪽에 해당하는 트리를 반환
-        if self.left is None:
-            return None, _Node(self.key, None, self.right)  # 왼쪽에 더 이상 트리가 없음
-        else:
-            left_subtree, right_subtree = self.left._split(x)
-            return left_subtree, _Node(self.key, right_subtree, self.right)
+      # 현재 노드가 x보다 큰 경우, 오른쪽 서브트리는 그대로 유지하고
+      # 왼쪽 서브트리를 분할하여 왼쪽에 해당하는 트리를 반환
+      if self.left is None:
+          return None, _Node(self.key, None, self.right)  # 왼쪽에 더 이상 트리가 없음
+      else:
+          left_subtree, right_subtree = self.left._split(x)
+          return left_subtree, _Node(self.key, right_subtree, self.right)
     raise NotImplementedError
     
 # --------------------------------------------------------------------

@@ -5,7 +5,7 @@
 # Select here which implementation you want to use:
 # Old one:
 # import bst
-# New one
+# New one rtesttest
 import nrbst as bst
 
 d = bst.dict()
